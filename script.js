@@ -1,55 +1,45 @@
-// SPLASH
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        document.getElementById('splash-screen').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
-    }, 2000);
-});
-
-// NAVEGAÇÃO
-const steps = Array.from(document.querySelectorAll(".form-step"));
+-const steps = Array.from(document.querySelectorAll(".form-step"));
 const nextBtns = document.querySelectorAll(".btn-next");
 const prevBtns = document.querySelectorAll(".btn-prev");
-const progressBar = document.querySelector(".progress-bar");
+const progressBar = document.getElementById("progressBar");
 const stepNum = document.getElementById("stepNum");
 
+// NAVEGAÇÃO
 nextBtns.forEach(btn => {
     btn.addEventListener("click", () => {
         if(validate()) {
-            let active = document.querySelector(".form-step.active");
-            let index = steps.indexOf(active);
-            active.classList.remove("active");
-            steps[index + 1].classList.add("active");
-            updateProgress(index + 2);
+            changePage(1);
         }
     });
 });
 
 prevBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-        let active = document.querySelector(".form-step.active");
-        let index = steps.indexOf(active);
-        active.classList.remove("active");
-        steps[index - 1].classList.add("active");
-        updateProgress(index);
-    });
+    btn.addEventListener("click", () => changePage(-1));
 });
 
-function updateProgress(step) {
-    progressBar.style.width = (step / 10) * 100 + "%";
-    stepNum.innerText = step;
+function changePage(dir) {
+    const active = document.querySelector(".form-step.active");
+    let index = steps.indexOf(active);
+    active.classList.remove("active");
+    
+    let nextIndex = index + dir;
+    steps[nextIndex].classList.add("active");
+    
+    // Atualiza barra e número
+    progressBar.style.width = ((nextIndex + 1) / 10 * 100) + "%";
+    stepNum.innerText = nextIndex + 1;
     window.scrollTo(0,0);
 }
 
 function validate() {
     const active = document.querySelector(".form-step.active");
-    const req = active.querySelectorAll("[required]");
-    let ok = true;
-    req.forEach(i => {
-        if(!i.value) { i.style.borderColor = "red"; ok = false; }
+    const required = active.querySelectorAll("[required]");
+    let valid = true;
+    required.forEach(i => {
+        if(!i.value) { i.style.borderColor = "red"; valid = false; }
         else { i.style.borderColor = "#ddd"; }
     });
-    return ok;
+    return valid;
 }
 
 // WHATSAPP
@@ -60,7 +50,7 @@ let zapUrl = "";
 form.addEventListener("submit", (e) => {
     e.preventDefault();
     const data = new FormData(form);
-    let msg = "⭐ *FICHA SIRIUS* ⭐\n\n";
+    let msg = "⭐ *FICHA SIRIUS - OFICIAL* ⭐\n\n";
 
     data.forEach((val, key) => {
         if(!(val instanceof File) && val != "") msg += `*${key}:* ${val}\n`;
@@ -72,4 +62,4 @@ form.addEventListener("submit", (e) => {
 
 document.getElementById("btn-entendido").addEventListener("click", () => {
     window.location.href = zapUrl;
-});
+});-
