@@ -1,4 +1,4 @@
-// SPLASH SCREEN (2 SEGUNDOS)
+// SPLASH
 window.addEventListener('load', () => {
     setTimeout(() => {
         document.getElementById('splash-screen').style.display = 'none';
@@ -6,71 +6,70 @@ window.addEventListener('load', () => {
     }, 2000);
 });
 
-// LOGICA MULTI-STEP
+// NAVEGAÇÃO
 const steps = Array.from(document.querySelectorAll(".form-step"));
 const nextBtns = document.querySelectorAll(".btn-next");
 const prevBtns = document.querySelectorAll(".btn-prev");
-const progressItems = document.querySelectorAll(".step-item");
-const progressBar = document.getElementById("progressBar");
+const progressBar = document.querySelector(".progress-bar");
+const stepNum = document.getElementById("stepNum");
 
 nextBtns.forEach(btn => {
     btn.addEventListener("click", () => {
-        if (validateInputs()) changeStep(1);
+        if(validate()) {
+            let active = document.querySelector(".form-step.active");
+            let index = steps.indexOf(active);
+            active.classList.remove("active");
+            steps[index + 1].classList.add("active");
+            updateProgress(index + 2);
+        }
     });
 });
 
 prevBtns.forEach(btn => {
-    btn.addEventListener("click", () => changeStep(-1));
+    btn.addEventListener("click", () => {
+        let active = document.querySelector(".form-step.active");
+        let index = steps.indexOf(active);
+        active.classList.remove("active");
+        steps[index - 1].classList.add("active");
+        updateProgress(index);
+    });
 });
 
-function changeStep(dir) {
-    const active = document.querySelector(".form-step.active");
-    let index = steps.indexOf(active);
-    steps[index].classList.remove("active");
-    progressItems[index].classList.remove("active");
-    index += dir;
-    steps[index].classList.add("active");
-    progressItems[index].classList.add("active");
-    progressBar.style.width = (index / (steps.length - 1)) * 100 + "%";
+function updateProgress(step) {
+    progressBar.style.width = (step / 10) * 100 + "%";
+    stepNum.innerText = step;
     window.scrollTo(0,0);
 }
 
-function validateInputs() {
+function validate() {
     const active = document.querySelector(".form-step.active");
-    const required = active.querySelectorAll("[required]");
+    const req = active.querySelectorAll("[required]");
     let ok = true;
-    required.forEach(i => {
-        if (!i.value) { i.style.borderColor = "red"; ok = false; }
-        else { i.style.borderColor = "#eee"; }
+    req.forEach(i => {
+        if(!i.value) { i.style.borderColor = "red"; ok = false; }
+        else { i.style.borderColor = "#ddd"; }
     });
     return ok;
 }
 
-// ENVIO WHATSAPP
+// WHATSAPP
 const form = document.getElementById("multiStepForm");
 const modal = document.getElementById("modal-aviso");
-const btnEntendido = document.getElementById("btn-entendido");
-let globalUrl = "";
+let zapUrl = "";
 
 form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const formData = new FormData(form);
-    let texto = "⭐ *SIRIUS - FICHA DE CADASTRO* ⭐\n\n";
+    const data = new FormData(form);
+    let msg = "⭐ *FICHA SIRIUS* ⭐\n\n";
 
-    formData.forEach((value, key) => {
-        if (!(value instanceof File) && value.trim() !== "") {
-            texto += `*${key.replace('_', ' ')}:* ${value}\n`;
-        }
+    data.forEach((val, key) => {
+        if(!(val instanceof File) && val != "") msg += `*${key}:* ${val}\n`;
     });
 
-    const fone = "559291404115";
-    // Usando o link mais agressivo para abrir o App direto
-    globalUrl = `https://api.whatsapp.com/send?phone=${fone}&text=${encodeURIComponent(texto)}`;
-    
-    // MOSTRAR AVISO PISCANDO
+    zapUrl = `https://api.whatsapp.com/send?phone=559291404115&text=${encodeURIComponent(msg)}`;
     modal.style.display = "flex";
 });
 
-btnEntendido.addEventListener("click", () => {
-    window.location.href = globalUrl;
+document.getElementById("btn-entendido").addEventListener("click", () => {
+    window.location.href = zapUrl;
 });
